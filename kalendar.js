@@ -11,6 +11,8 @@
 		template: 	'<div class="c-month-view">'+
 						'<div class="c-month-arrow-left">‹</div>'+
 						'<p></p>'+
+						'<select class="month"></select>'+
+						'<select class="year"></select>'+
 						'<div class="c-month-arrow-right">›</div>'+
 					'</div>'+
 					'<div class="c-holder">'+
@@ -31,7 +33,9 @@
 			specday_trigger: ".specific-day",
 			specday_day: ".specific-day-info[i=day]",
 			specday_date: ".specific-day-info[i=date]",
-			specday_scheme: ".s-scheme"
+			specday_scheme: ".s-scheme",
+			navMonth: ".c-month-view select.month",
+			navYear: ".c-month-view select.year"
 		},
 		monthHuman: [["JAN","January"],["FEB","February"],["MAR","March"],["APR","April"],["MAY","May"],["JUN","June"],["JUL","July"],["AUG","August"],["SEP","September"],["OCT","October"],["NOV","November"],["DEC","December"]],
 		dayHuman: [["S","Sunday"],["M","Monday"],["T","Thursday"],["W","Wednesday"],["T","Thursday"],["F","Friday"],["S","Saturday"]],
@@ -40,12 +44,14 @@
 			return a[s];
 		},
 		urlText: "View on Web",
+		jumpTo: false,
 		onInitiated: function() { console.log("initiated")},
 		onGoogleParsed: function() { console.log("googleparsed")},
 		onMonthChanged: function() {console.log('monthshow')},
 		onDayShow: function() { console.log('dayshow')},
 		onGridShow: function() { console.log("gridshow")},
-		onDayClick: function(e) { console.log(e.data.info)}
+		onDayClick: function(e) { console.log(e.data.info)},
+		onJumpTo: function(e) { console.log('onjumpto')}
 	}
 	function kalendar(element, options) {
 		this.options = $.extend(true, {}, defaults, options);
@@ -127,11 +133,13 @@
 		this.element.html(this.options.template);
 		this.element.attr('ewcalendar','');
 		this.element.attr('color', this.options.color);
+		this.element.attr('jumpto', this.options.jumpTo);
 		this.elements = {};
 		for(var ele in this.options.calendar_elements) {
 			this.elements[ele] = this.element.find(this.options.calendar_elements[ele]);
 		}
 		this.setMonth();
+		this.setJumpTo();
 		this.elements.prevMonth.on('click', {"self": this, "dir": "prev"}, this.changeMonth);
 		this.elements.nextMonth.on('click', {"self": this, "dir": "next"}, this.changeMonth);
 		this.options.onInitiated();
@@ -149,6 +157,8 @@
 		var $grid = this.elements.grid;
 		$grid.html('');
 		this.elements.monthShow.html(this.options.monthHuman[this.currentTimeSet.getMonth()][1]+' '+this.currentTimeSet.getFullYear());
+		this.elements.navMonth.val(this.currentTimeSet.getMonth());
+		this.elements.navYear.val(this.currentTimeSet.getFullYear());
 
 		if(this.options.showdays) {
 			$dayView = $('<div class="c-row"></div>');
@@ -193,7 +203,32 @@
 			$row.append($day);
 			tempDate.setDate(tempDate.getDate() + 1);
 		}
+		
 		this.options.onMonthChanged();
+	}
+	kalendar.prototype.setJumpTo = function() {
+		for(var m=0;m<12;m++) {
+			this.elements.navMonth.append($("<option></option>").attr("value",m).text(this.options.monthHuman[m][1]));
+		}
+		for(var y=this.currentTimeSet.getFullYear()-10;y<this.currentTimeSet.getFullYear()+10;y++) {
+			this.elements.navYear.append($("<option></option>").attr("value",y).text(y));
+		}
+		this.elements.navMonth.val(this.currentTimeSet.getMonth());
+		this.elements.navYear.val(this.currentTimeSet.getFullYear());
+		this.elements.navMonth.on('change', {"self": this, "month": true, "year":false}, this.jumpTo);
+		this.elements.navYear.on('change', {"self": this, "month": false, "year":true}, this.jumpTo);
+	}
+	kalendar.prototype.jumpTo = function(e) {
+		var self = e.data.self;
+		var month = e.data.month == true ? this.value : self.currentMonth;
+		var year = e.data.year == true ? this.value : self.currentYear;
+		self.currentMonth = month;
+		self.currentYear = year;
+		self.currentTimeSet = new Date(year, month);
+		self.currentMonth = self.currentTimeSet.getMonth();
+		self.currentYear = self.currentTimeSet.getFullYear();
+		self.setMonth();
+		self.options.onJumpTo();
 	}
 	kalendar.prototype.showDay = function(e) {
 		var events = e.data.day,
