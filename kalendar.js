@@ -45,6 +45,10 @@
 		},
 		urlText: "View on Web",
 		jumpTo: false,
+		yearRange: {
+			start: 10,
+			end: 10
+		},
 		onInitiated: function() { console.log("initiated")},
 		onGoogleParsed: function() { console.log("googleparsed")},
 		onMonthChanged: function() {console.log('monthshow')},
@@ -210,7 +214,7 @@
 		for(var m=0;m<12;m++) {
 			this.elements.navMonth.append($("<option></option>").attr("value",m).text(this.options.monthHuman[m][1]));
 		}
-		for(var y=this.currentTimeSet.getFullYear()-10;y<this.currentTimeSet.getFullYear()+10;y++) {
+		for(var y=this.currentTimeSet.getFullYear()-this.options.yearRange.start;y<this.currentTimeSet.getFullYear()+this.options.yearRange.end;y++) {
 			this.elements.navYear.append($("<option></option>").attr("value",y).text(y));
 		}
 		this.elements.navMonth.val(this.currentTimeSet.getMonth());
