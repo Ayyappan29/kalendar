@@ -49,6 +49,7 @@
 			start: 10,
 			end: 10
 		},
+		onDayClickShow: false,
 		onInitiated: function() { console.log("initiated")},
 		onGoogleParsed: function() { console.log("googleparsed")},
 		onMonthChanged: function() {console.log('monthshow')},
@@ -201,7 +202,7 @@
 				for(var u=0;u<3 && u<this.options.eventsParsed[strtime].length;u++) {
 					$eventholder.append('<div class="event-n"></div>')
 				}
-				$day.on('click', { "day": this.options.eventsParsed[strtime], "self": this, "date": tempDate.getTime(), "strtime": strtime}, this.showDay);
+				this.options.onDayClickShow && $day.on('click', { "day": this.options.eventsParsed[strtime], "self": this, "date": tempDate.getTime(), "strtime": strtime}, this.showDay);
 				$day.append($eventholder);
 			}
 			$row.append($day);
