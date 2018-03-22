@@ -97,8 +97,8 @@
 			$.getJSON("https://www.googleapis.com/calendar/v3/calendars/"+c+"/events?key="+k, function(data) {
 				for(var i=0;i<data.items.length;i++) {
 					var it = data.items[i],
-						tstart = new Date(it.start.dateTime),
-						tend = new Date(it.end.dateTime),
+						tstart = new Date(it.start.dateTime !== undefined ? it.start.dateTime : it.start.date),
+						tend = new Date(it.end.dateTime !== undefined ? it.end.dateTime : it.end.date),
 						t = {
 						title:it.summary,
 						location: it.location,
